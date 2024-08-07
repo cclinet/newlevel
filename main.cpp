@@ -1,4 +1,4 @@
-#include "skip.h"
+#include "skiplist.h"
 #include <iostream>
 int main() {
   SkipList<int> sl;
