@@ -66,12 +66,19 @@ void SkipList<Key>::insert(const Key &key) {
   Node *x = find_greater_or_equal(key, prev);
   int height = 3; // TODO: use random
   x = new_node(key, height);
+
+  if (height > max_height_.load(std::memory_order_relaxed)) {
+    for (int i = max_height_.load(std::memory_order_relaxed); i < height; i++) {
+      prev[i] = head_;
+    }
+    // 这里原子操作是不必要的？？？
+    max_height_.store(height, std::memory_order_relaxed);
+  }
+
   for (int i = 0; i < height; i++) {
     x->set_next(i, prev[i]->next(i));
     prev[i]->set_next(i, x);
   }
-  // 这里是不必要的？？？
-  max_height_.store(height, std::memory_order_relaxed);
 };
 
 template <std::three_way_comparable Key>
